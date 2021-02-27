@@ -28,7 +28,7 @@ IF %ERRORLEVEL% EQU 1 echo %time%   ERROR: HKLM\SYSTEM\CurrentControlSet\Service
 
 
 SC QUERY scsrvc > NUL
-IF ERRORLEVEL 1060 (SET /A d = 1) else (SET /A d = 0)
+IF ERRORLEVEL 1060 (SET /A d = 0) else (SET /A d = 1)
 IF ERRORLEVEL 1060 echo %time%   ERROR: Solidcore service not running.
 
 :: Make sure it's all there.
