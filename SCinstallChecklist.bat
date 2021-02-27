@@ -7,9 +7,9 @@
 :: Standalone Post-Install script for Solidcore
 
 :: Examples
-REM <installer-file> /s /v" /qn UNLICVER=1 POSTINSTALL=\"C:\\My Dir\\THISSCRIPT.bat\""
+:: INSTALLFILE /s /v" /qn UNLICVER=1 POSTINSTALL=\"C:\\My Dir\\THISSCRIPT.bat\""
 
-REM <installer-file> /s /v" /qn SERIALNUMBER=xxxx-xxxx-xxxx-xxxx-xxxx POSTINSTALL=\"C:\\My Dir\\THISSCRIPT.bat\""
+:: INSTALLFILE /s /v" /qn SERIALNUMBER=xxxx-xxxx-xxxx-xxxx-xxxx POSTINSTALL=\"C:\\My Dir\\THISSCRIPT.bat\""
 
 @echo off
 set LOGFILE=c:\my\log.txt
