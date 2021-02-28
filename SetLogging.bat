@@ -1,6 +1,8 @@
-@echo off
 
-REM Method 1 (Pretty logging)
+
+REM Method 1 (Pretty logging):
+
+@echo off
 If Exist "%SYSTEMROOT%\temp\mcafeelogs\" (set BATLOG="%SYSTEMROOT%\Temp\my\log.log")
 	else (
 	mkdir "%SYSTEMROOT%\Temp\my\"
@@ -13,8 +15,10 @@ echo ************************************** >> %BATLOG%
 
 :: Rest of script here
 
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-REM Method 2 (Short and sweet)
+REM Method 2 (Short and sweet):
 
 @echo off
 set BATLOG=%SYSTEMROOT%\Temp\bat.log
