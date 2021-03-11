@@ -26,10 +26,12 @@ setlocal ENABLEDELAYEDEXPANSION
 
 if exist "%SYSTEMROOT%\Temp\my\" (SET BATLOG="%SYSTEMROOT%\Temp\my\bat.log") else (mkdir "%SYSTEMROOT%\Temp\my\")
 set BATLOG="%SYSTEMROOT%\Temp\my\bat.log"
+set current_path=%~dp0
 
 echo ************************************** >> %BATLOG%
 echo       %date% %time%               		>> %BATLOG%
 echo ************************************** >> %BATLOG%
+echo %date% %time% Current working directory = !current_path! >> %BATLOG%
 
 :: Rest of script here
 
