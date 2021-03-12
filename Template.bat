@@ -1,14 +1,12 @@
 @echo off
 
-:: Purpose of batch file
-:: Neil Hartsfield
 
 SETLOCAL ENABLEEXTENSIONS
 setlocal ENABLEDELAYEDEXPANSION
 
 :: Init variables
-SET "execution_path=%PROGRAMDATA%\My\"
-SET platform=0
+set "execution_path=%PROGRAMDATA%\My\"
+set platform=0
 
 
 :: Establish the batlog
@@ -17,7 +15,7 @@ set BATLOG="%SYSTEMROOT%\Temp\my\bat.log"
 set current_path=%~dp0
 
 echo ************************************** >> %BATLOG%
-echo       %date% %time%               		>> %BATLOG%
+echo *     %date% %time%     * >> %BATLOG%
 echo ************************************** >> %BATLOG%
 echo %date% %time% - Current working directory = !current_path! >> %BATLOG%
 
@@ -25,14 +23,21 @@ echo %date% %time% - Current working directory = !current_path! >> %BATLOG%
 if exist %execution_path% (rmdir %execution_path% /s /q & mkdir %execution_path%) else (mkdir %execution_path%)
 
 :: Determine 32bit vs 64bit
-
 if exist "%PROGRAMFILES(X86)%" (
-    echo %Date% %time% - x86 folder found >> %BATLOG%
-	  set "progfiles=%ProgramW6432%"
-	  set platform=x64
+	echo %Date% %time% - x86 folder FOUND >> %BATLOG%
+	set "progfiles=%ProgramW6432%"
+	set platform=x64
 ) else (
-  	echo %Date% %time% - x86 folder not found >> %BATLOG%
-	  set "progfiles=%PROGRAMFILES%"
-	  set platform=x86
+	echo %Date% %time% - x86 folder NOT FOUND >> %BATLOG%
+	set "progfiles=%PROGRAMFILES%"
+	set platform=x86
 )
-echo %date% %time% - System platform is %platform% >> %BATLOG%
+echo %date% %time% - System platform = %platform% >> %BATLOG%
+
+
+echo ************************************** >> %BATLOG%
+echo *		Exiting              * >> %BATLOG%
+echo *     %date% %time%     * >> %BATLOG%
+echo ************************************** >> %BATLOG%
+
+exit /b
