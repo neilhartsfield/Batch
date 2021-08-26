@@ -184,7 +184,7 @@ echo Good news, you've got all the required root certificates.
 goto End
 
 :missing
-echo You're missing root certs.
+echo Sorry, you're missing some. Please see KB87096 to install the latest required root certificates.
 
 :End
 exit /b 0
