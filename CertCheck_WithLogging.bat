@@ -1,20 +1,55 @@
 @echo off
 setlocal ENABLEDELAYEDEXPANSION
+setlocal ENABLEEXTENSIONS
 
-:: Author - Neil Hartsfield
-:: Last modified - 08/25/2021
+:: Author: Neil Hartsfield
+:: Last modified: 08/26/2021
+
+:: Initialize variables
+set param=%*
+set maconfig=0
+set cmdagent=0
+REM set PROP=RECEIVED
 
 :: Set up the BATLOG
 
-set BATLOG="%SYSTEMROOT%\Temp\CertCheck.log"
+if exist "%SYSTEMROOT%\Temp\McAfeeLogs\" (SET BATLOG="%SYSTEMROOT%\Temp\McAfeeLogs\CertCheck.log") else (mkdir "%SYSTEMROOT%\Temp\McAfeeLogs\")
+set BATLOG="%SYSTEMROOT%\Temp\McAfeeLogs\CertCheck.log"
 call :LOG >> %BATLOG%
 exit /B
 
 :LOG
 
+:: Begin logging
+
 echo ************************************** 
 echo       %date% %time%               		
 echo ************************************** 
+echo %date% %time% - Checking for missing root certificates in accordance with McAfee KB87096
+
+if exist "%PROGRAMFILES(X86)%" (
+	echo %Date% %time% - x86 folder found
+	set "progfiles=%ProgramW6432%"
+	set platform=x64
+) else (
+	echo %Date% %time% - x86 folder not found
+	set "progfiles=%PROGRAMFILES%"
+	set platform=x86
+)
+
+::Find maconfig
+set maconfig=0
+If Exist "%PROGRAMFILES(X86)%\McAfee\Common Framework\maconfig.exe" (SET maconfig="%PROGRAMFILES(X86)%\McAfee\Common Framework\maconfig.exe")
+If Exist "C:\Program Files\McAfee\Common Framework\maconfig.exe" (SET maconfig="C:\Program Files\McAfee\Common Framework\maconfig.exe")
+If Exist "C:\Program Files\McAfee\Agent\maconfig.exe" (SET maconfig="C:\Program Files\McAfee\Agent\maconfig.exe")
+If Exist "%PROGRAMFILES(X86)%\McAfee\Agent\maconfig.exe" (SET maconfig="%PROGRAMFILES(X86)%\McAfee\Agent\maconfig.exe")
+
+::Find cmdagent
+set cmdagent=0
+If Exist "%PROGRAMFILES(X86)%\McAfee\Common Framework\cmdagent.exe" (SET cmdagent="%PROGRAMFILES(X86)%\McAfee\Common Framework\cmdagent.exe")
+If Exist "C:\Program Files\McAfee\Common Framework\cmdagent.exe" (SET cmdagent="C:\Program Files\McAfee\Common Framework\cmdagent.exe")
+If Exist "C:\Program Files\McAfee\Agent\cmdagent.exe" (SET cmdagent="C:\Program Files\McAfee\Agent\cmdagent.exe")
+If Exist "%PROGRAMFILES(X86)%\McAfee\Agent\cmdagent.exe" (SET cmdagent="%PROGRAMFILES(X86)%\McAfee\Agent\cmdagent.exe")
 
 :: Query all certificates blobs from KB87096 & log results
 
@@ -176,15 +211,82 @@ echo Certificate found: GlobalSign CodeSigning CA - G3 ^(2024^)
 
 :: Check if we have any missing certs from above queries
 for %%a in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21) do (
-if !blob[%%a]! == 0 (goto allgood) else (goto missing)
+if !blob[%%a]! == 1 (goto missing)
 )
 
-:allgood
-echo Good news, you've got all the required root certificates.
-goto End
+echo %date% %time% - Good news, you've got all the required root certificates.
+set PROP=CERTS_OKAY
 
-:missing
-echo Sorry, you're missing some. Please see KB87096 to install the latest required root certificates.
+::Send Properties back to ePO
+:sendprops
+echo !param! | findstr /I /L "tag"
+if !errorlevel! EQU 0 (
+	echo %date% %time% TAG parameter found
+	echo !param! | findstr /I /L "tag=1"
+	if !errorlevel! EQU 0 (
+		SET prop_value=1
+		echo %date% %time% Property value is: !prop_value!
+	)
+	echo !param! | findstr /I /L "tag=2"
+	if !errorlevel! EQU 0 (
+		SET prop_value=2
+		echo %date% %time% Property value is: !prop_value!
+	)
+	echo !param! | findstr /I /L "tag=3"
+	if !errorlevel! EQU 0 (
+		SET prop_value=3
+		echo %date% %time% Property value is: !prop_value!
+	)
+	echo !param! | findstr /I /L "tag=4"
+	if !errorlevel! EQU 0 (
+		SET prop_value=4
+		echo %date% %time% Property value is: !prop_value!
+	)
+	echo !param! | findstr /I /L "tag=5"
+	if !errorlevel! EQU 0 (
+		SET prop_value=5
+		echo %date% %time% Property value is: !prop_value!
+	)
+	echo !param! | findstr /I /L "tag=6"
+	if !errorlevel! EQU 0 (
+		SET prop_value=6
+		echo %date% %time% Property value is: !prop_value!
+	)
+	echo !param! | findstr /I /L "tag=7"
+	if !errorlevel! EQU 0 (
+		SET prop_value=7
+		echo %date% %time% Property value is: !prop_value!
+	)
+	echo !param! | findstr /I /L "tag=8"
+	if !errorlevel! EQU 0 (
+		SET prop_value=8
+		echo %date% %time% Property value is: !prop_value!
+	)
+	echo %date% %time% TAG parameter found. Property value is: !prop_value!
+	
+	echo %date% %time% Properties value is -custom -prop!prop_value!
+	
+	if !maconfig! NEQ 0 (
+		!maconfig! -custom -prop!prop_value! "%PROP%"
+		%cmdagent% -p
+		%cmdagent% -c
+		%cmdagent% -e
+		echo %date% %time% Status %PROP% sent to Custom Property !prop_value! in ePO
+		echo %date% %time% Status sent to ePO
+	) ELSE (
+		echo %date% %time% Status not sent to ePO 
+	)
+) else (
+	echo %date% %time% TAG parameter not found
+)
 
 :End
+echo %date% %time% Exiting script
+echo %date% %time% ----------------------------------
+echo %date% %time% ----------------------------------
 exit /b 0
+
+:missing
+echo %date% %time% - Sorry, you're missing some. Please see KB87096 to install the latest required root certificates.
+set PROP=MISSING_CERTS
+goto sendprops
